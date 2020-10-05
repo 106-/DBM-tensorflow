@@ -1,0 +1,17 @@
+{
+    "generative-layers": [5, 5, 5],
+    "generative-args": {
+        "propagation": "double",
+        "data_expectation": "exact",
+        "model_expectation": "exact"
+    },
+    "training-layers": [5, 5, 5],
+    "training-args": {
+        "propagation": "double",
+        "data_expectation": "meanfield",
+        "model_expectation": "montecarlo"
+    },
+    "dtype": "float32",
+    "minibatch-size": 50,
+    "datasize": 500
+}
