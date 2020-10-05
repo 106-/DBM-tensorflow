@@ -119,8 +119,8 @@ class DBM:
 
         for epoch in range(train_epoch):
             for idx in dataset_idx.shuffle(len(train_data)).batch(minibtach_size):
-                data_exp = self.data_expectation.expectation(self, train_data, idx)
-                model_exp = self.model_expectation.expectation(self)
+                data_exp = self.data_expectation.expectation(train_data, idx)
+                model_exp = self.model_expectation.expectation()
 
                 grads = []
                 for i,j in zip(data_exp, model_exp):
