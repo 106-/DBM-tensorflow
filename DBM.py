@@ -42,6 +42,20 @@ class DBM:
             weights[i] = tf.matmul(tf.transpose(data[i]), data[i+1]) / len(data[i])
         return weights
     
+    def signal(self, value, layer_number):
+        if layer_number > 0:
+            w = layer_number - 1
+            if value.shape[1] != self.weights[w].shape[0]:
+                raise ValueError("columb of value is not valid (expect {}, but got {})".format(self.weights[w].shape[0], value.shape[1]))
+            return tf.matmul( value, self.weights[w] )
+        elif layer_number < 0:
+            w = abs(layer_number) - 1
+            if value.shape[1] != self.weights[w].shape[1]:
+                raise ValueError("columb of value is not valid (expect {}, but got {})".format(self.weights[w].shape[1], value.shape[1]))
+            return tf.matmul( value, tf.transpose( self.weights[w] ) )
+        else:
+            raise ValueError("layer_number must not be zero.")
+
     # P(v, h1, h2) or P(h1, h2 | v)
     def probability(self, visible=None, data=None):
         datas = self.get_bit()

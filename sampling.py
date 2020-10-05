@@ -21,26 +21,25 @@ class Sampler:
         for t in range(approximition_time):
             # 往路
             if fixed_visible is None:
-                signal = tf.transpose( tf.matmul(self.dbm.weights[0], tf.transpose(self.values[1])) )
+                signal = self.dbm.signal(self.values[1], -1)
                 self.values[0] = self.propagation(signal)
-
             else:
                 self.values[0] = fixed_visible
 
             for l in range(1, len(self.dbm.layers)-1):
-                signal = tf.matmul(self.values[l-1], self.dbm.weights[l-1]) + tf.transpose( tf.matmul(self.dbm.weights[l], tf.transpose(self.values[l+1])) )
+                signal = self.dbm.signal(self.values[l-1], l) + self.dbm.signal(self.values[l+1], -(l+1))
                 self.values[l] = self.propagation(signal)
 
-            signal = tf.matmul( self.values[-2], self.dbm.weights[-1] )
+            signal = self.dbm.signal(self.values[-2], len(self.dbm.weights))
             self.values[-1] = self.propagation(signal)
 
             # 復路
             for l in reversed(range(1, len(self.dbm.layers)-1)):
-                signal = tf.matmul(self.values[l-1], self.dbm.weights[l-1]) + tf.transpose( tf.matmul(self.dbm.weights[l], tf.transpose(self.values[l+1])) )
+                signal = self.dbm.signal(self.values[l-1], l) + self.dbm.signal(self.values[l+1], -(l+1))
                 self.values[l] = self.propagation(signal)
         
         if fixed_visible is None:
-            signal = tf.transpose( tf.matmul(self.dbm.weights[0], tf.transpose(self.values[1])) )
+            signal = self.dbm.signal(self.values[1], -1)
             self.values[0] = self.propagation(signal)
 
         return self.values
