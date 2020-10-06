@@ -114,6 +114,9 @@ class DBM:
             ll = self.log_likelihood(train_data)
             template = "[ {} / {} ] KL-Divergence: {}, log-likelihood: {}"
             print(template.format(epoch, train_epoch, float(kld), float(ll)))
+            
+            learninglog.make_log(epoch, "kl-divergence", float(kld))
+            learninglog.make_log(epoch, "loglikelihood", float(ll))
         
         per_epoch(0)
 
