@@ -1,5 +1,6 @@
 
 import tensorflow as tf
+import copy
 
 class Sampler:
     def __init__(self, dbm, datasize, initial_update=1000, update_time=1):
@@ -42,7 +43,7 @@ class Sampler:
             signal = self.dbm.signal(self.values[1], -1)
             self.values[0] = self.propagation(signal)
 
-        return self.values
+        return copy.deepcopy(self.values)
 
 def oneshot_sampling(dbm, datasize, update_time=1000):
     sampler = Sampler(dbm, datasize, initial_update=update_time)
