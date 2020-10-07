@@ -9,3 +9,7 @@ class double:
     
     def meanfield_propagation(self, input):
         return tf.tanh(input)
+    
+    @tf.function
+    def first_smci_marginalize(self, x, y, z):
+        return tf.math.tanh(tf.math.atanh(tf.math.tanh(x)*tf.math.tanh(y))+z)

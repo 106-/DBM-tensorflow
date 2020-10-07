@@ -8,8 +8,8 @@
     "training-layers": [5, 5, 5, 5],
     "training-args": {
         "propagation": "double",
-        "data_expectation": "four_layer_1smci",
-        "model_expectation": "four_layer_1smci"
+        "data_expectation": "first_smci",
+        "model_expectation": "first_smci"
     },
     "dtype": "float32",
     "minibatch-size": 50,

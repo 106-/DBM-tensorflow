@@ -57,73 +57,39 @@ class meanfield:
 
         return weight
 
-class three_layer_1smci:
+class first_smci:
     def __init__(self, dbm, sample_size=500, initial_update=1000, update_time=1):
-        if len(dbm.layers) != 3:
-            raise ValueError("this DBM is not 3-layer.")
-
         self.sampler = None
         self.dbm = dbm
         self.initial_update = initial_update
         self.update_time = update_time
         self.sample_size = sample_size
+        self.mariginalize = self.dbm.propagation.first_smci_marginalize
     
     def expectation(self, data, batch_idx):
         if self.sampler is None:
             self.sampler = Sampler(self.dbm, self.sample_size, self.initial_update, self.update_time)
         
-        tantan = lambda x,y,z: tf.math.tanh(tf.math.atanh(tf.math.tanh(x)*tf.math.tanh(y))+z)
         values = self.sampler.sampling(data)
         for i,_ in enumerate(values):
             values[i] = tf.gather(values[i], batch_idx)
-        expectations = [None for i in self.dbm.weights]
 
-        lower_signal = self.dbm.signal(values[1], -1)
-        middle_signal = self.dbm.signal(values[0], 1) + self.dbm.signal(values[2], -2)
-        upper_signal = self.dbm.signal(values[1], 2)
+        signals = [None for i in self.dbm.layers]
+        for i in range(1, len(self.dbm.layers)-1):
+            signals[i] = self.dbm.signal(values[i-1], 1) + self.dbm.signal(values[i+1], -(i+1))
+        signals[-1] = self.dbm.signal(values[-2], len(self.dbm.weights))
 
-        mid_to_up  = values[1][:, :, tf.newaxis] * self.dbm.weights[1]
-        up_to_mid  = values[2][:, tf.newaxis, :] * self.dbm.weights[1]
-
-        expectations[0] = tf.reduce_mean( values[0][:, :, tf.newaxis] * tf.math.tanh(middle_signal)[:, tf.newaxis, :], axis=0 )
-        expectations[1] = tf.reduce_mean(tantan( middle_signal[:, :, tf.newaxis] - up_to_mid, upper_signal[:, tf.newaxis, :] - mid_to_up, self.dbm.weights[1] ), axis=0)
-
-        return expectations
-
-class four_layer_1smci:
-    def __init__(self, dbm, sample_size=500, initial_update=1000, update_time=1):
-        if len(dbm.layers) != 4:
-            raise ValueError("this DBM is not 4-layer.")
-
-        self.sampler = None
-        self.dbm = dbm
-        self.initial_update = initial_update
-        self.update_time = update_time
-        self.sample_size = sample_size
-    
-    def expectation(self, data, batch_idx):
-        if self.sampler is None:
-            self.sampler = Sampler(self.dbm, self.sample_size, self.initial_update, self.update_time)
+        multiply_up = [None for i in self.dbm.weights]
+        multiply_down = [None for i in self.dbm.weights]
+        for i in range(1, len(self.dbm.weights)):
+            multiply_up[i] = values[i][:, :, tf.newaxis] * self.dbm.weights[i]
+            multiply_down[i] = values[i+1][:, tf.newaxis, :] * self.dbm.weights[i]
         
-        tantan = lambda x,y,z: tf.math.tanh(tf.math.atanh(tf.math.tanh(x)*tf.math.tanh(y))+z)
-        values = self.sampler.sampling(data)
-        for i,_ in enumerate(values):
-            values[i] = tf.gather(values[i], batch_idx)
         expectations = [None for i in self.dbm.weights]
-
-        lower_signal = self.dbm.signal(values[1], -1)
-        middle1_signal = self.dbm.signal(values[0], 1) + self.dbm.signal(values[2], -2)
-        middle2_signal = self.dbm.signal(values[1], 2) + self.dbm.signal(values[3], -3)
-        upper_signal = self.dbm.signal(values[2], 3)
-
-        mid1_to_mid2 = values[1][:, :, tf.newaxis] * self.dbm.weights[1]
-        mid2_to_up   = values[2][:, :, tf.newaxis] * self.dbm.weights[2]
-
-        mid2_to_mid1 = values[2][:, tf.newaxis, :] * self.dbm.weights[1]
-        up_to_mid2   = values[3][:, tf.newaxis, :] * self.dbm.weights[2]
-
-        expectations[0] = tf.reduce_mean( values[0][:, :, tf.newaxis] * tf.math.tanh(middle1_signal)[:, tf.newaxis, :], axis=0 )
-        expectations[1] = tf.reduce_mean(tantan( middle1_signal[:, :, tf.newaxis] - mid2_to_mid1, middle2_signal[:, tf.newaxis, :] - mid1_to_mid2, self.dbm.weights[1]), axis=0)
-        expectations[2] = tf.reduce_mean(tantan( middle2_signal[:, :, tf.newaxis] - up_to_mid2,     upper_signal[:, tf.newaxis, :] -   mid2_to_up, self.dbm.weights[2]), axis=0)
+        for i,_ in enumerate(self.dbm.weights):
+            if i==0:
+                expectations[i] = tf.reduce_mean( values[i][:, :, tf.newaxis] * tf.math.tanh(signals[i+1])[:, tf.newaxis, :], axis=0 )
+            else:
+                expectations[i] = tf.reduce_mean(self.mariginalize( signals[i][:, :, tf.newaxis]-multiply_down[i], signals[i+1][:, tf.newaxis, :]-multiply_up[i], self.dbm.weights[i]), axis=0)
 
         return expectations
