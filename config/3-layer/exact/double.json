@@ -11,7 +11,7 @@
         "data_expectation": "exact",
         "model_expectation": "exact"
     },
-    "dtype": "float32",
+    "dtype": "float64",
     "minibatch-size": 100,
     "datasize": 500
 }
