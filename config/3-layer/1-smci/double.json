@@ -8,8 +8,8 @@
     "training-layers": [5, 5, 5],
     "training-args": {
         "propagation": "double",
-        "data_expectation": "meanfield",
-        "model_expectation": "montecarlo"
+        "data_expectation": "first_smci",
+        "model_expectation": "first_smci"
     },
     "dtype": "float32",
     "minibatch-size": 100,
