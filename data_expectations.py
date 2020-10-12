@@ -35,7 +35,7 @@ class exact:
         return expectations
 
 class meanfield:
-    def __init__(self, dbm, initial_update=1000, update_time=1):
+    def __init__(self, dbm, initial_update=100, update_time=1):
         self.sampler = None
         self.dbm = dbm
         self.initial_update = initial_update
