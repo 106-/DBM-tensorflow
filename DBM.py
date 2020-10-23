@@ -103,6 +103,7 @@ class DBM:
     def kl_divergence(self, gen_dbm):
         sum_axis = list(range(1, len(self.layers)))
         probs = tf.reduce_sum(self.probability(), axis=sum_axis)
+        sum_axis = list(range(1, len(gen_dbm.layers)))
         gen_probs = tf.reduce_sum(gen_dbm.probability(), axis=sum_axis)
         return tf.reduce_sum( gen_probs * tf.math.log( gen_probs / probs ) )
 

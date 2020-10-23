@@ -1,0 +1,17 @@
+{
+    "generative-layers": [5, 10, 10, 10],
+    "generative-args": {
+        "propagation": "double",
+        "data_expectation": "exact",
+        "model_expectation": "exact"
+    },
+    "training-layers": [5, 5, 5, 5],
+    "training-args": {
+        "propagation": "double",
+        "data_expectation": "first_smci",
+        "model_expectation": "first_smci"
+    },
+    "dtype": "float64",
+    "minibatch-size": 100,
+    "datasize": 500
+}
