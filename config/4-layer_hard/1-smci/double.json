@@ -1,5 +1,5 @@
 {
-    "generative-layers": [5, 10, 10, 10],
+    "generative-layers": [5, 8, 8, 8],
     "generative-args": {
         "propagation": "double",
         "data_expectation": "exact",
