@@ -64,6 +64,7 @@ class first_smci:
         self.initial_update = initial_update
         self.update_time = update_time
         self.sample_size = sample_size
+        self.single_marginalize = self.dbm.propagation.single_marginalize
         self.mariginalize = self.dbm.propagation.first_smci_marginalize
     
     def expectation(self, data, batch_idx):
@@ -89,7 +90,7 @@ class first_smci:
         expectations = [None for i in self.dbm.weights]
         for i,_ in enumerate(self.dbm.weights):
             if i==0:
-                expectations[i] = tf.reduce_mean( values[i][:, :, tf.newaxis] * tf.math.tanh(signals[i+1])[:, tf.newaxis, :], axis=0 )
+                expectations[i] = tf.reduce_mean( values[i][:, :, tf.newaxis] * self.single_marginalize(signals[i+1])[:, tf.newaxis, :], axis=0 )
             else:
                 expectations[i] = self.mariginalize( signals[i][:, :, tf.newaxis]-multiply_down[i], signals[i+1][:, tf.newaxis, :]-multiply_up[i], self.dbm.weights[i])
 
@@ -105,6 +106,7 @@ class second_smci:
         self.initial_update = initial_update
         self.update_time = update_time
         self.sample_size = sample_size
+        self.single_marginalize = self.dbm.propagation.single_marginalize
         self.mariginalize = self.dbm.propagation.first_smci_marginalize
         self.mariginalize2 = self.dbm.propagation.second_smci_marginalize
     
@@ -133,7 +135,7 @@ class second_smci:
 
         # expectation[0]
         x = (self.dbm.signal(values[0], 1)[:, tf.newaxis, :]) + self.mariginalize2(signals[2][:, tf.newaxis, :] - multiply_up[1], self.dbm.weights[1], axis=2)[:, tf.newaxis, :]
-        expectations[0] = tf.reduce_mean( values[0][:, :, tf.newaxis] * tf.math.tanh( x ), axis=0)
+        expectations[0] = tf.reduce_mean( values[0][:, :, tf.newaxis] * self.single_marginalize( x ), axis=0)
 
         # expectation[1]
         x = (self.dbm.signal(values[2],-2)[:, :, tf.newaxis] - multiply_down[1]) + self.dbm.signal(values[0], 1)[:, :, tf.newaxis]
