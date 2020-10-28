@@ -12,4 +12,4 @@ class double:
     
     @tf.function
     def first_smci_marginalize(self, x, y, z):
-        return tf.math.tanh(tf.math.atanh(tf.math.tanh(x)*tf.math.tanh(y))+z)
+        return tf.reduce_mean(tf.math.tanh( tf.math.atanh( tf.math.tanh(x)*tf.math.tanh(y) ) + z), axis=0)

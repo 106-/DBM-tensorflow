@@ -75,7 +75,7 @@ class first_smci:
         
         expectations = [None for i in self.dbm.weights]
         for i,_ in enumerate(self.dbm.weights):
-            expectations[i] = tf.reduce_mean(self.mariginalize( signals[i][:, :, tf.newaxis]-multiply_down[i], signals[i+1][:, tf.newaxis, :]-multiply_up[i], self.dbm.weights[i]), axis=0)
+            expectations[i] = self.mariginalize( signals[i][:, :, tf.newaxis]-multiply_down[i], signals[i+1][:, tf.newaxis, :]-multiply_up[i], self.dbm.weights[i])
 
         return expectations
 
@@ -90,6 +90,7 @@ class second_smci:
         self.update_time = update_time
         self.sample_size = sample_size
         self.mariginalize = self.dbm.propagation.first_smci_marginalize
+        self.mariginalize2 = self.dbm.propagation.second_smci_marginalize
     
     def expectation(self):
         if self.sampler is None:

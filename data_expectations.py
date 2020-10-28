@@ -91,7 +91,7 @@ class first_smci:
             if i==0:
                 expectations[i] = tf.reduce_mean( values[i][:, :, tf.newaxis] * tf.math.tanh(signals[i+1])[:, tf.newaxis, :], axis=0 )
             else:
-                expectations[i] = tf.reduce_mean(self.mariginalize( signals[i][:, :, tf.newaxis]-multiply_down[i], signals[i+1][:, tf.newaxis, :]-multiply_up[i], self.dbm.weights[i]), axis=0)
+                expectations[i] = self.mariginalize( signals[i][:, :, tf.newaxis]-multiply_down[i], signals[i+1][:, tf.newaxis, :]-multiply_up[i], self.dbm.weights[i])
 
         return expectations
 
