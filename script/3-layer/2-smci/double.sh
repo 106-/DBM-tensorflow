@@ -5,7 +5,7 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-DIR="./results/"`date +%Y-%m-%d_%H-%M-%S`"_double_3-layer_1-smci/"
+DIR="./results/"`date +%Y-%m-%d_%H-%M-%S`"_double_3-layer_2-smci/"
 mkdir -p $DIR
 
 for i in `seq $1`
