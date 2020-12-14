@@ -120,32 +120,29 @@ class four_layer_second_smci:
             values[i] = tf.gather(values[i], batch_idx)
         
         expectations = [None for i in self.dbm.weights]
-
-        signals = [None for i in self.dbm.layers]
-        signals[0] = self.dbm.signal(values[1], -1)
-        for i in range(1, len(self.dbm.layers)-1):
-            signals[i] = self.dbm.signal(values[i-1], i) + self.dbm.signal(values[i+1], -(i+1))
-        signals[-1] = self.dbm.signal(values[-2], len(self.dbm.weights))
-
+        signal_up = [None for i in self.dbm.weights]
+        signal_down = [None for i in self.dbm.weights]
         multiply_up = [None for i in self.dbm.weights]
         multiply_down = [None for i in self.dbm.weights]
         for i,_ in enumerate(self.dbm.weights):
-            multiply_up[i] = values[i][:, :, tf.newaxis] * self.dbm.weights[i]
-            multiply_down[i] = values[i+1][:, tf.newaxis, :] * self.dbm.weights[i]
+            signal_up[i] = self.dbm.signal(values[i], i+1)
+            signal_down[i] = self.dbm.signal(values[i+1], -(i+1))
+            multiply_up[i] = signal_up[i][:, tf.newaxis, :] - values[i][:, :, tf.newaxis] * self.dbm.weights[i]
+            multiply_down[i] = signal_down[i][:, :, tf.newaxis] - values[i+1][:, tf.newaxis, :] * self.dbm.weights[i]
 
         # expectation[0]
-        x = (self.dbm.signal(values[0], 1)[:, tf.newaxis, :]) + self.mariginalize2(signals[2][:, tf.newaxis, :] - multiply_up[1], self.dbm.weights[1], axis=2)[:, tf.newaxis, :]
+        x = (self.dbm.signal(values[0], 1) + self.mariginalize2( signal_down[2][:, tf.newaxis, :] + multiply_up[1], self.dbm.weights[1], axis=2))[:, tf.newaxis, :]
         expectations[0] = tf.reduce_mean( values[0][:, :, tf.newaxis] * self.single_marginalize( x ), axis=0)
 
         # expectation[1]
-        x = (self.dbm.signal(values[2],-2)[:, :, tf.newaxis] - multiply_down[1]) + self.dbm.signal(values[0], 1)[:, :, tf.newaxis]
-        y = (self.dbm.signal(values[1], 2)[:, tf.newaxis, :] -   multiply_up[1]) + self.mariginalize2( signals[3][:, tf.newaxis, :] -   multiply_up[2], self.dbm.weights[2], axis=2)[:, tf.newaxis, :]
+        x = multiply_down[1] + signal_up[0][:, :, tf.newaxis]
+        y = multiply_up[1] + self.mariginalize2( multiply_up[2], self.dbm.weights[2], axis=2)[:, tf.newaxis, :]
         z = self.dbm.weights[1][tf.newaxis, :, :]
         expectations[1] = self.mariginalize(x, y, z)
 
         # expectation[2]
-        x = signals[3][:, tf.newaxis, :] - multiply_up[2]
-        y = (self.dbm.signal(values[3],-3)[:, :, tf.newaxis] - multiply_down[2]) + self.mariginalize2(signals[1][:, :, tf.newaxis] - multiply_down[1], self.dbm.weights[1], axis=1)[:, :, tf.newaxis]
+        x = multiply_up[2]
+        y = multiply_down[2] + self.mariginalize2( signal_up[0][:, :, tf.newaxis] + multiply_down[1], self.dbm.weights[1], axis=1)[:, :, tf.newaxis]
         z = self.dbm.weights[2][tf.newaxis, :, :]
         expectations[2] = self.mariginalize(x, y, z)
 
