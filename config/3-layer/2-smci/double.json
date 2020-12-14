@@ -1,15 +1,15 @@
 {
-    "generative-layers": [5, 5, 5, 5],
+    "generative-layers": [5, 5, 5],
     "generative-args": {
         "propagation": "double",
         "data_expectation": "exact",
         "model_expectation": "exact"
     },
-    "training-layers": [5, 5, 5, 5],
+    "training-layers": [5, 5, 5],
     "training-args": {
         "propagation": "double",
-        "data_expectation": "four_layer_second_smci",
-        "model_expectation": "four_layer_second_smci"
+        "data_expectation": "three_layer_second_smci",
+        "model_expectation": "three_layer_second_smci"
     },
     "dtype": "float64",
     "minibatch-size": 100,
