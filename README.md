@@ -28,6 +28,15 @@ $ pip install -r ./requirements.txt
 ```
 `result/` 下に実験の結果が出力されます. `*_log.json` のものがKLDと対数尤度のログ, `*_model.json` がモデルの重みパラメータのファイルです.
 
+本実装では学習時の期待値計算方法を以下の4種類から選択できます。
+
+* `exact`
+* `meanfield` + `montecarlo`
+* `first_smci`
+* `second_smci`
+
+これらの手法は下記の文献 [1]-[4] に詳しく説明されています。
+
 # References
 - [1]: R. Salakhutdinov and G. Hinton: [Deep Boltzmann Machines](http://proceedings.mlr.press/v5/salakhutdinov09a/salakhutdinov09a.pdf), Artificial intelligence and statistics, pp.448-455, 2009.
 - [2]: M. Yasuda: [Monte Carlo Integration Using Spatial Structure of Markov Random Field](https://journals.jps.jp/doi/10.7566/JPSJ.84.034001), Journal of the Physical Society of Japan 84(3), 2015.

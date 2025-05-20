@@ -7,7 +7,7 @@ import datetime
 import os
 from DBM import DBM
 from sampling import oneshot_sampling
-from mltools import LearningLog
+from mltools_stub import LearningLog
 
 parser = argparse.ArgumentParser("DBM learning script.", add_help=False)
 parser.add_argument("learning_config", action="store", type=str, help="path of learning configuration file.")
