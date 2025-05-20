@@ -1,4 +1,0 @@
-[submodule "mltools"]
-	path = mltools
-	url = https://github.com/106-/mltools.git
-	branch = master

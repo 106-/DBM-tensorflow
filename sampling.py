@@ -9,7 +9,11 @@ class Sampler:
         self.inital_state = True
         self.update_time = update_time
 
-        self.values = [(tf.keras.backend.random_binomial((datasize, r), p=0.5, dtype=dbm.dtype)*2.)-1. for r in dbm.layers]
+        self.values = []
+        for r in dbm.layers:
+            rnd = tf.random.uniform((datasize, r), dtype=dbm.dtype)
+            val = tf.where(rnd < 0.5, tf.ones_like(rnd), tf.zeros_like(rnd))
+            self.values.append(val * 2. - 1.)
         self.propagation = getattr(dbm.propagation, "propagation")
 
     def sampling(self, fixed_visible=None):

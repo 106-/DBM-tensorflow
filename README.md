@@ -14,10 +14,6 @@ _Python3.xが必要です._
 $ git clone https://github.com/106-/DBM-tensorflow.git DBM
 $ cd DBM
 ```
-サブリポジトリのファイルを持ってくる
-```
-$ git submodule update --init --recursive
-```
 必要モジュールのインストール
 ```
 $ pip install -r ./requirements.txt
