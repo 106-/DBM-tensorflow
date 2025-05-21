@@ -2,10 +2,16 @@
 import tensorflow as tf
 
 class double:
+    def __init__(self):
+        # Create a seed generator in the constructor
+        self.seed_generator = tf.random.experimental.Generator.from_seed(5678)
+
     @tf.function
     def propagation(self, input):
         prob = ( tf.tanh(input) + 1. ) / 2.
-        return (tf.keras.backend.random_binomial(prob.shape, prob, dtype=input.dtype)*2.)-1.
+        # Use the generator to create a new seed for each call
+        seed = self.seed_generator.make_seeds(2)[0]
+        return (tf.cast(tf.random.stateless_binomial(shape=tf.shape(prob), seed=seed, counts=1.0, probs=prob), dtype=input.dtype)*2.)-1.
     
     def meanfield_propagation(self, input):
         return tf.tanh(input)
