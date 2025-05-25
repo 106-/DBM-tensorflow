@@ -9,8 +9,7 @@ class Sampler:
         self.inital_state = True
         self.update_time = update_time
 
-        # Generate a seed for stateless_binomial
-        seed_generator = tf.random.experimental.Generator.from_seed(1234)
+        seed_generator = tf.random.experimental.Generator.from_non_deterministic_state()
         seeds = [seed_generator.make_seeds(2)[0] for _ in dbm.layers]
 
         self.values = [(tf.cast(tf.random.stateless_binomial(shape=(datasize, r), seed=seeds[i], counts=1.0, probs=0.5), dtype=dbm.dtype)*2.)-1. for i, r in enumerate(dbm.layers)]
