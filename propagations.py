@@ -2,10 +2,17 @@
 import tensorflow as tf
 
 class double:
+    def __init__(self):
+        # 乱数生成器の作成
+        self.seed_generator = tf.random.experimental.Generator.from_non_deterministic_state()
+        # シード値を固定する場合は以下のように設定
+        # self.seed_generator = tf.random.experimental.Generator.from_seed(5678)
+
     @tf.function
     def propagation(self, input):
         prob = ( tf.tanh(input) + 1. ) / 2.
-        return (tf.keras.backend.random_binomial(prob.shape, prob, dtype=input.dtype)*2.)-1.
+        seed = self.seed_generator.make_seeds(2)[0]
+        return (tf.cast(tf.random.stateless_binomial(shape=tf.shape(prob), seed=seed, counts=1.0, probs=prob), dtype=input.dtype)*2.)-1.
     
     def meanfield_propagation(self, input):
         return tf.tanh(input)

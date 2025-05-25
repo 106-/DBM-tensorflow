@@ -9,7 +9,10 @@ GPUが使えたり, numpyのボトルネック(計算過程がいちいちメモ
 numpyでの実装では処理速度的な限界から3層までの実装となっていますが, この実装では好きなだけ層を重ねることができます(2-SMCI法を除く).
 
 ## 使い方
-_Python3.xが必要です._
+_Python3.12が必要です._
+
+tensorflowという大きめのモジュールを使用するため、`python -m venv .venv` などで環境を分離するのをおすすめします。
+
 ```
 $ git clone https://github.com/106-/DBM-tensorflow.git DBM
 $ cd DBM
