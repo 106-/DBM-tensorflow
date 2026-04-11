@@ -5,6 +5,7 @@ import data_expectations
 import model_expectations
 import json
 from numpy.lib.stride_tricks import as_strided
+from tqdm import tqdm
 
 
 class DBM:
@@ -150,31 +151,47 @@ class DBM:
     ):
         dataset_idx = tf.data.Dataset.from_tensor_slices((np.arange(len(train_data))))
 
-        def per_epoch(epoch):
-            kld = self.kl_divergence(gen_dbm)
-            ll = self.log_likelihood(train_data)
-            template = "[ {} / {} ] KL-Divergence: {}, log-likelihood: {}"
-            print(template.format(epoch, train_epoch, float(kld), float(ll)))
+        prev_kld = None
+        prev_ll = None
 
-            learninglog.make_log(epoch, "kl-divergence", float(kld))
-            learninglog.make_log(epoch, "loglikelihood", float(ll))
+        def arrow(current, previous, lower_is_better=True):
+            if previous is None:
+                return ""
+            if lower_is_better:
+                return "↓" if current < previous else "↑"
+            else:
+                return "↑" if current > previous else "↓"
 
-        per_epoch(0)
+        with tqdm(total=train_epoch, unit="epoch") as pbar:
+            for epoch in range(train_epoch):
+                for idx in dataset_idx.shuffle(len(train_data)).batch(minibtach_size):
+                    data_exp = self.data_expectation.expectation(train_data, idx)
+                    model_exp = self.model_expectation.expectation()
 
-        for epoch in range(train_epoch):
-            for idx in dataset_idx.shuffle(len(train_data)).batch(minibtach_size):
-                data_exp = self.data_expectation.expectation(train_data, idx)
-                model_exp = self.model_expectation.expectation()
+                    grads = []
+                    for i, j in zip(data_exp, model_exp):
+                        grads.append(
+                            -(i - j)
+                        )  # make grad negative (stochastic gradient *ascent*)
 
-                grads = []
-                for i, j in zip(data_exp, model_exp):
-                    grads.append(
-                        -(i - j)
-                    )  # make grad negative (stochastic gradient *ascent*)
+                    optimizer.apply_gradients(zip(grads, self.weights))
 
-                optimizer.apply_gradients(zip(grads, self.weights))
+                kld = float(self.kl_divergence(gen_dbm))
+                ll = float(self.log_likelihood(train_data))
 
-            per_epoch(epoch + 1)
+                learninglog.make_log(epoch + 1, "kl-divergence", kld)
+                learninglog.make_log(epoch + 1, "loglikelihood", ll)
+
+                pbar.set_postfix(
+                    {
+                        "KLD": f"{kld:.4f}{arrow(kld, prev_kld, lower_is_better=True)}",
+                        "LL": f"{ll:.4f}{arrow(ll, prev_ll, lower_is_better=False)}",
+                    }
+                )
+                pbar.update(1)
+
+                prev_kld = kld
+                prev_ll = ll
 
     def get_bit(self):
         length = np.max(self.layers)
