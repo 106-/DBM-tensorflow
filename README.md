@@ -41,6 +41,7 @@ $ make train CONFIG=./config/3-layer/exact/double.json EPOCH=100
 | `meanfield_montecarlo` | 平均場近似       | モンテカルロ     |
 | `1-smci`               | 1次SMCI          | 1次SMCI          |
 | `2-smci`               | 2次SMCI          | 2次SMCI          |
+
 `result/` 下に実験の結果が出力されます. `*_log.json` のものがKLDと対数尤度のログ, `*_model.json` がモデルの重みパラメータのファイルです.
 
 # References
