@@ -6,29 +6,41 @@ Implementation of deep Boltzmann machine using TensorFlow.
 GPUが使えたり, numpyのボトルネック(計算過程がいちいちメモリに配置される)が無い分こっちのが早いです.
 使い方もほぼ同じ.
 
+こちらのプロジェクトは学習アルゴリズムの実験用の実装となっています.以下の3つのアルゴリズムにて学習を行うことができます。
+
+- 平均場近似&モンテカルロ積分を利用した, Salakhutdinov & Hintonによる学習方法
+- 空間モンテカルロ積分(Spatial Monte Carlo Integration; S-MCI)を利用した, M. Yasudaによる学習方法
+- 厳密値による学習
+
 numpyでの実装では処理速度的な限界から3層までの実装となっていますが, この実装では好きなだけ層を重ねることができます(2-SMCI法を除く).
 
 ## 使い方
 _Python3.12が必要です._
 
-tensorflowという大きめのモジュールを使用するため、`python -m venv .venv` などで環境を分離するのをおすすめします。
+[uv](https://docs.astral.sh/uv/) を使って依存関係を管理しています。
 
 ```
 $ git clone https://github.com/106-/DBM-tensorflow.git DBM
 $ cd DBM
 ```
-サブリポジトリのファイルを持ってくる
+依存関係のインストール
 ```
-$ git submodule update --init --recursive
-```
-必要モジュールのインストール
-```
-$ pip install -r ./requirements.txt
+$ make sync
 ```
 あとは実験条件をjsonファイルに記述し実行すればOK
 ```
-./train_main.py ./config/3-layer/exact/double.json 100     # 100は実行エポック
+$ make train                                                   # デフォルト設定で実行
+$ make train CONFIG=./config/3-layer/exact/double.json EPOCH=100
 ```
+
+各 `config/` サブディレクトリは以下のアルゴリズムに対応しています.
+
+| config ディレクトリ    | データ期待値     | モデル期待値     |
+|------------------------|------------------|------------------|
+| `exact`                | 厳密値           | 厳密値           |
+| `meanfield_montecarlo` | 平均場近似       | モンテカルロ     |
+| `1-smci`               | 1次SMCI          | 1次SMCI          |
+| `2-smci`               | 2次SMCI          | 2次SMCI          |
 `result/` 下に実験の結果が出力されます. `*_log.json` のものがKLDと対数尤度のログ, `*_model.json` がモデルの重みパラメータのファイルです.
 
 # References
